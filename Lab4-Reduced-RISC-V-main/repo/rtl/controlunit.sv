@@ -17,13 +17,6 @@ module controlunit #(
 
     always_comb begin
 
-        //defualt valies
-        ALUOp = 2'b00;
-        RegWrite = 1'b0;
-        ImmSrc = 2'b00;
-        ALUsrc = 1'b0;
-        PCsrc = 1'b0;
-
         case(op)
             7'b0000011: begin
                 ALUOp = 2'b00;
@@ -47,6 +40,11 @@ module controlunit #(
                 PCsrc = EQ;         //1'b1 & EQ
             end
             default: begin
+                ALUOp = 2'b00;
+                RegWrite = 1'b0;
+                ImmSrc = 2'b00;
+                ALUsrc = 1'b0;
+                PCsrc = 1'b0;
             end
         endcase
     end

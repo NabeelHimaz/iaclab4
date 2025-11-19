@@ -1,9 +1,9 @@
 module ALU #(
     parameter DATA_WIDTH = 32
 )(
-    input  logic [DATA_WIDTH-1:0] ALUop1,
-    input  logic [DATA_WIDTH-1:0] ALUop2,
-    input logic ALUctrl,
+    input  logic [DATA_WIDTH-1:0]   ALUop1,
+    input  logic [DATA_WIDTH-1:0]   ALUop2,
+    input  logic                    ALUctrl,
 
     output logic [DATA_WIDTH-1:0] SUM,
     output logic                  EQ

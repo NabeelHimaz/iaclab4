@@ -17,6 +17,6 @@ module extend #(
             2'b10: begin
                 assign immop = {{20{instr[31]}}, instr[7], instr[30:25], instr[11,8], 1'b0};
             end
-            defualt: assign immop = {{20{instr[31]}}, instr[31:20]};
+            defualt: assign immop = 32'b0;
 
 endmodule

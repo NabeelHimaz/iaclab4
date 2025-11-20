@@ -27,36 +27,38 @@ fi
 # Cleanup
 rm -rf obj_dir
 
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR" || exit
 
 # Iterate through files
 for file in "${files[@]}"; do
     name=$(basename "$file" _tb.cpp | cut -f1 -d\-)
     
     # If verify.cpp -> we are testing the top module
-    if [ $name == "verify.cpp" ]; then
+    if [ "$name" == "verify.cpp" ]; then
         name="top"
     fi
 
-    # Automatically detect latest GoogleTest installation under Homebrew
-    GTEST_BASE=$(brew --prefix googletest 2>/dev/null)
-    if [ -z "$GTEST_BASE" ]; then
-        echo "${RED}Error: GoogleTest not found via Homebrew.${RESET}"
+    # --- UBUNTU CONFIGURATION ---
+    # We explicitly set the paths for Ubuntu/WSL
+    GTEST_INCLUDE="/usr/include"
+    GTEST_LIB="/usr/lib/x86_64-linux-gnu"
+
+    # Check if GoogleTest is actually installed
+    if [ ! -d "$GTEST_INCLUDE/gtest" ]; then
+        echo "${RED}Error: GoogleTest headers not found.${RESET}"
+        echo "Run: sudo apt-get install libgtest-dev cmake build-essential"
         exit 1
     fi
     
-    # Construct include and lib paths dynamically
-    GTEST_INCLUDE="$GTEST_BASE/include"
-    GTEST_LIB="$GTEST_BASE/lib"
-
     # Translate Verilog -> C++ including testbench
+    # Note: -CFLAGS has quotes fixed and the backslash added
     verilator   -Wall --trace \
-                -cc ${RTL_FOLDER}/${name}.sv \
-                --exe ${file} \
-                -y ${RTL_FOLDER} \
+                -cc "${RTL_FOLDER}/${name}.sv" \
+                --exe "$file" \
+                -y "$RTL_FOLDER" \
                 --prefix "Vdut" \
                 -o Vdut \
-                -CFLAGS "-std=c++17 -isystem ${GTEST_INCLUDE}" \
+                -CFLAGS "-std=c++17" \
                 -LDFLAGS "-L${GTEST_LIB} -lgtest -lgtest_main -lpthread"
 
     # Build C++ project with automatically generated Makefile
@@ -76,10 +78,10 @@ done
 
 # Exit as a pass or fail (for CI purposes)
 if [ $fails -eq 0 ]; then
-    echo "${GREEN}Success! All ${passes} test(s) passed!"
+    echo "${GREEN}Success! All ${passes} tests passed!${RESET}"
     exit 0
 else
     total=$((passes + fails))
-    echo "${RED}Failure! Only ${passes} test(s) passed out of ${total}."
+    echo "${RED}Failure! Only ${passes} tests passed out of ${total}.${RESET}"
     exit 1
 fi

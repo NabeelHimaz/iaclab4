@@ -1,3 +1,5 @@
+//archit's corrected code, need to get someone else to double check changes
+
 module extend #(
     parameter DATA_WIDTH = 32
 ) (
@@ -9,14 +11,19 @@ module extend #(
     always_comb begin
         case(ImmSrc)
             2'b00: begin
-                assign immop = {{20{instr[31]}}, instr[31:20]};
+                //u dont require assign commands inside the always block
+                immop = {{20{instr[31]}}, instr[31:20]};
             end
             2'b01: begin
-                assign immop = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+                immop = {{20{instr[31]}}, instr[31:25], instr[11:7]};
             end
             2'b10: begin
-                assign immop = {{20{instr[31]}}, instr[7], instr[30:25], instr[11,8], 1'b0};
+                immop = {{20{instr[31]}}, instr[7], instr[30:25], instr[11:8], 1'b0}; //changed command in 11,8 to a colon
             end
-            defualt: assign immop = 32'b0;
+            default: begin //fixed typo defualt and rewrote block logic
+                immop = {{DATA_WIDTH}{1'b0}};
+            end
+        endcase //closed the case
+    end //closed the begin
 
 endmodule
